@@ -1,9 +1,9 @@
 const BaseURL = "https://api.github.com/repos/Pikselas/jellymilk/contents";
+var ActiveContents = "Models";
 
 async function GetFromGithub(url)
 {
-    let res = await fetch(url , {"headers":{"Accept":"application/vnd.github.v3.raw","Authorization" : `Bearer ${AccessToken}`}});
-    return res;
+    return await fetch(url , {"headers":{"Accept":"application/vnd.github.v3.raw","Authorization" : `Bearer ${AccessToken}`}});
 }
 
 async function GetModelTypes()
@@ -94,18 +94,49 @@ function CreateModelCard(name , desc , tags , links)
     return card;
 }
 
+function CreateAddCategoryPanel()
+{
+    let panel = document.createElement("div");
+    panel.className = "CategoryAddPanel";
+    let title = document.createElement("h2");
+    title.innerHTML = "Add Category";
+    let input = document.createElement("input");
+    input.placeholder = "Category Name";
+    let button = document.createElement("button");
+    button.className = "AddButton";
+    button.innerHTML = "Add";
+    button.onclick = async ()=>{
+        // let res = await GetFromGithub(`${BaseURL}/data/categories.json`);
+        // if(res.ok)
+        // {
+        //     let j = await res.json();
+        //     j["categories"].push(input.value);
+        //     let res = await fetch(`${BaseURL}/data/categories.json` , {"method":"PUT" , "headers":{"Accept":"application/vnd.github.v3.raw","Authorization" : `Bearer ${AccessToken}` , "Content-Type" : "application/json"} , "body":JSON.stringify(j)});
+        //     if(res.ok)
+        //     {
+        //         alert("Category Added");
+        //     }
+        // }
+    }
+    panel.appendChild(title);
+    panel.appendChild(input);
+    panel.appendChild(button);
+    return panel;
+}
+
 document.body.onload = async ()=>{
-    // let c = document.getElementById("Container");
-    // c.innerHTML = "";
-    // let models = await GetAllModels();
-    // models.forEach(async (model)=>{
-    //     let model_details = await GetModel(model);
-    //     let card = CreateModelCard(model , model_details["description"] , model_details["tags"] , model_details["links"]);
-    //     c.appendChild(card);
-    // });
+    let c = document.getElementById("Container");
+    c.innerHTML = "";
+    let models = await GetAllModels();
+    models.forEach(async (model)=>{
+        let model_details = await GetModel(model);
+        let card = CreateModelCard(model , model_details["description"] , model_details["tags"] , model_details["links"]);
+        c.appendChild(card);
+    });
 }
 
 document.getElementById("ModelsButton").onclick = async ()=>{
+    ActiveContents = "Models";
     let c = document.getElementById("Container");
     c.innerHTML = "";
     let models = await GetAllModels();
@@ -117,6 +148,7 @@ document.getElementById("ModelsButton").onclick = async ()=>{
 }
 
 document.getElementById("TagsButton").onclick = async ()=>{
+    ActiveContents = "Tags";
     let c = document.getElementById("Container");
     c.innerHTML = "";
     let types = await GetModelTypes();
@@ -138,4 +170,13 @@ document.getElementById("TagsButton").onclick = async ()=>{
         card.appendChild(title);
         c.appendChild(card);
     });
+}
+
+document.getElementById("AddButton").onclick = async ()=>{
+    if(ActiveContents == "Tags")
+    {
+        let c = document.getElementById("Container");
+        c.innerHTML = "";
+        c.appendChild(CreateAddCategoryPanel());
+    }
 }
