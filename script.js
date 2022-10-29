@@ -20,7 +20,7 @@ async function GetModels(modelType)
     let res = await GetFromGithub(`${BaseURL}/data/categories/${modelType}.json`);
     if(res.ok)
     {
-        return await res.json();
+        return (await res.json())["models"];
     }
 }
 
@@ -95,12 +95,47 @@ function CreateModelCard(name , desc , tags , links)
 }
 
 document.body.onload = async ()=>{
+    // let c = document.getElementById("Container");
+    // c.innerHTML = "";
+    // let models = await GetAllModels();
+    // models.forEach(async (model)=>{
+    //     let model_details = await GetModel(model);
+    //     let card = CreateModelCard(model , model_details["description"] , model_details["tags"] , model_details["links"]);
+    //     c.appendChild(card);
+    // });
+}
+
+document.getElementById("ModelsButton").onclick = async ()=>{
     let c = document.getElementById("Container");
     c.innerHTML = "";
     let models = await GetAllModels();
     models.forEach(async (model)=>{
         let model_details = await GetModel(model);
         let card = CreateModelCard(model , model_details["description"] , model_details["tags"] , model_details["links"]);
+        c.appendChild(card);
+    });
+}
+
+document.getElementById("TagsButton").onclick = async ()=>{
+    let c = document.getElementById("Container");
+    c.innerHTML = "";
+    let types = await GetModelTypes();
+    types.forEach((type)=>{
+        let card = document.createElement("div");
+        card.onclick = async ()=>{
+            let c = document.getElementById("Container");
+            c.innerHTML = "";
+            let models = await GetModels(type);
+            models.forEach(async (model)=>{
+                let model_details = await GetModel(model);
+                let card = CreateModelCard(model , model_details["description"] , model_details["tags"] , model_details["links"]);
+                c.appendChild(card);
+            });
+        }
+        card.className = "Content Tag";
+        let title = document.createElement("h2");
+        title.innerHTML = type;
+        card.appendChild(title);
         c.appendChild(card);
     });
 }

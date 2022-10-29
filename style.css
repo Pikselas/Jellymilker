@@ -131,3 +131,20 @@ body
   border-radius: 50%;
   border:2px solid #00bbff;
 }
+
+.Content.Tag
+{
+  width: 150px;
+  height: 250px;
+  background: linear-gradient(#010004,#07000f 30%);
+  box-shadow: 0px 0px 7px #4b06b0;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.Content.Tag h2
+{
+  color: #af00ff;
+}
