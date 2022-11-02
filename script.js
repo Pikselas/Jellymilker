@@ -1,5 +1,5 @@
 const BaseURL = "https://api.github.com/repos/Pikselas/jellymilk/contents";
-var ActiveContents = "Models";
+var ActiveContents = "All-Models";
 
 async function GetFromGithub(url)
 {
@@ -61,7 +61,7 @@ function CreateModelCard(name , desc , tags , links)
             res.blob().then((blob)=>{
                 img.src = URL.createObjectURL(blob);
                 //revoke after loading complete
-                img.onload = () => {URL.revokeObjectURL(img.src)};
+                //img.onload = () => {URL.revokeObjectURL(img.src)};
             });
         }
     });
@@ -80,7 +80,7 @@ function CreateModelCard(name , desc , tags , links)
         lnk.href = link;
         lnk.target = "_blank";
         //get the base url of link
-        let baseurl = link.split("/")[2];
+        let baseurl = link.replace(/^(?:https?:\/\/)?(?:www\.)?/i, "").split('/')[0];
         let icon = document.createElement("img");
         //get the icon of the base url 32 px
         icon.src = `https://www.google.com/s2/favicons?domain=${baseurl}&sz=32`;
@@ -91,6 +91,12 @@ function CreateModelCard(name , desc , tags , links)
     card.appendChild(title);
     card.appendChild(Tags);
     card.appendChild(Links);
+
+    card.onclick = ()=>{
+        let panelElements = CreateEditModelPanel(img.src , desc , links);
+        card.parentElement.appendChild(panelElements[0]);
+    }
+
     return card;
 }
 
@@ -124,31 +130,106 @@ function CreateAddCategoryPanel()
     return panel;
 }
 
+function CreateBaseModelPanel()
+{
+    let panel = document.createElement("div");
+    panel.className = "ModelPanel";
+    let ProfileImageSection = document.createElement("div");
+    ProfileImageSection.className = "ProfileImageSection";
+    let ProfileImage = document.createElement("img");
+    ProfileImage.className = "ProfileImage";
+    let ItemsArea = document.createElement("div");
+    ItemsArea.className = "Items Div";
+    let DescArea = document.createElement("input");
+    DescArea.className = "DescArea";
+    DescArea.placeholder = "How angelic is this model?";
+    let Links = document.createElement("div");
+    Links.className = "Links";
+    let save = document.createElement("button");
+    save.innerHTML = "Save";
+    let Close = document.createElement("button");
+    Close.className = "Close";
+    Close.innerHTML = "X";
+    Close.onclick = ()=>{
+        panel.remove();
+    }
+    ProfileImageSection.appendChild(ProfileImage);
+    panel.appendChild(ProfileImageSection);
+    ItemsArea.appendChild(Close);
+    ItemsArea.appendChild(DescArea);
+    ItemsArea.appendChild(Links);
+    ItemsArea.appendChild(save);
+    panel.appendChild(ItemsArea);
+    return [panel , ProfileImage , DescArea , Links , save];
+}
+
+function CreateAddModelPanel()
+{
+    let panelElements = CreateBaseModelPanel();
+}
+
+function CreateEditModelPanel(imgurl , desc , links)
+{
+    let panelElements = CreateBaseModelPanel();
+    panelElements[1].src = imgurl;
+    panelElements[2].value = desc;
+    links.forEach((link)=>{
+        let lnk = document.createElement("div");
+        lnk.className = "Link Delete";
+        lnk.title = link;
+        lnk.innerHTML = link.replace(/^(?:https?:\/\/)?(?:www\.)?/i, "").split('/')[0]
+        panelElements[3].appendChild(lnk);
+        lnk.onclick = ()=>{
+            lnk.parentElement.removeChild(lnk);
+        }
+    });
+    let newLink = document.createElement("div");
+    newLink.className = "Link Add"
+    newLink.innerHTML = "+";
+    newLink.onclick = ()=>{
+        let l = prompt("Enter Link");
+        if(l)
+        {
+            let lnk = document.createElement("div");
+            lnk.className = "Link Delete";
+            lnk.title = l;
+            lnk.innerHTML = l.replace(/^(?:https?:\/\/)?(?:www\.)?/i, "").split('/')[0]
+            lnk.onclick = ()=>{
+                lnk.remove();
+            }
+            panelElements[3].insertBefore(lnk , newLink);
+        }
+    }
+    panelElements[3].appendChild(newLink)
+    panelElements.push(newLink);
+    return panelElements;
+}
+
 document.body.onload = async ()=>{
     let c = document.getElementById("Container");
     c.innerHTML = "";
     let models = await GetAllModels();
-    models.forEach(async (model)=>{
-        let model_details = await GetModel(model);
-        let card = CreateModelCard(model , model_details["description"] , model_details["tags"] , model_details["links"]);
-        c.appendChild(card);
-    });
+    models.forEach(model => GetModel(model)            
+    .then((model_details)=>
+    { 
+        c.appendChild(CreateModelCard(model , model_details["description"] , model_details["tags"] , model_details["links"])); 
+    }));
 }
 
 document.getElementById("ModelsButton").onclick = async ()=>{
-    ActiveContents = "Models";
+    ActiveContents = "All-Models";
     let c = document.getElementById("Container");
     c.innerHTML = "";
     let models = await GetAllModels();
-    models.forEach(async (model)=>{
-        let model_details = await GetModel(model);
-        let card = CreateModelCard(model , model_details["description"] , model_details["tags"] , model_details["links"]);
-        c.appendChild(card);
-    });
+    models.forEach(model => GetModel(model)            
+    .then((model_details)=>
+    { 
+        c.appendChild(CreateModelCard(model , model_details["description"] , model_details["tags"] , model_details["links"])); 
+    }));
 }
 
 document.getElementById("TagsButton").onclick = async ()=>{
-    ActiveContents = "Tags";
+    ActiveContents = "All-Tags";
     let c = document.getElementById("Container");
     c.innerHTML = "";
     let types = await GetModelTypes();
@@ -158,11 +239,12 @@ document.getElementById("TagsButton").onclick = async ()=>{
             let c = document.getElementById("Container");
             c.innerHTML = "";
             let models = await GetModels(type);
-            models.forEach(async (model)=>{
-                let model_details = await GetModel(model);
-                let card = CreateModelCard(model , model_details["description"] , model_details["tags"] , model_details["links"]);
-                c.appendChild(card);
-            });
+            models.forEach(model => GetModel(model)            
+            .then((model_details)=>
+            { 
+                c.appendChild(CreateModelCard(model , model_details["description"] , model_details["tags"] , model_details["links"])); 
+            }));
+            ActiveContents = "Tag-" + type;
         }
         card.className = "Content Tag";
         let title = document.createElement("h2");
@@ -173,10 +255,9 @@ document.getElementById("TagsButton").onclick = async ()=>{
 }
 
 document.getElementById("AddButton").onclick = async ()=>{
-    if(ActiveContents == "Tags")
+    let c = document.getElementById("Container");
+    if(ActiveContents == "All-Tags")
     {
-        let c = document.getElementById("Container");
-        c.innerHTML = "";
         c.appendChild(CreateAddCategoryPanel());
     }
 }

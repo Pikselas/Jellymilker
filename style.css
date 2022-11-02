@@ -173,6 +173,13 @@ body
   font-family: monospace;
 }
 
+.CategoryAddPanel h2
+{
+  color: #00c3ff;
+  font-family: monospace;
+  font-weight: bold;
+}
+
 .CategoryAddPanel input:focus
 {
   outline: none;
@@ -193,4 +200,125 @@ body
   color: #f6f6f6;
   font-weight: bold;
   font-family: monospace;
+}
+
+.ModelPanel
+{
+    position: fixed;
+    width: 700px;
+    height: 450px;
+    background-color: #040011db;
+    border-radius: 15px;
+    box-shadow: 0px 0px 10px #ae00de;
+}
+.ModelPanel .ProfileImageSection
+{
+    width: 40%;
+    height: 100%;
+    display: inline-block;
+}
+.ModelPanel .ProfileImageSection .ProfileImage
+{
+    width: 100%;
+    height: 100%;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+.ModelPanel .Items
+{
+    width: 60%;
+    height: 100%;
+    float:right;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.ModelPanel .Items input
+{
+    transition: all .5s ease;
+    width: 80%;
+    height: 40px;
+    border: none;
+    border-bottom: 2px solid #c700ff;
+    outline: none;
+    margin-bottom: 10px;
+    background-color: #04001144;
+    color: #c700ff;
+    text-align: center;
+    font-size:large;
+    font-weight: 600;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.ModelPanel .Items input:focus
+{
+    box-shadow: inset 0px -10px 5px -5px #ec20ff8a;
+}
+
+.ModelPanel .Items .Links
+{
+    width: 80%;
+    height: 200px;
+    overflow-y: scroll;
+    scrollbar-width: none;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.ModelPanel .Items .Links .Link
+{
+    width:calc(100% - 4px);
+    height: 30px;
+    color: #de66ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: large;
+    font-weight: 600;
+    font-family: 'Courier New', Courier, monospace;
+    background :linear-gradient(45deg,#27004e,#8900c8);
+    cursor: pointer;
+}
+
+.ModelPanel .Items .Links .Link.Add:hover
+{
+    background :linear-gradient(45deg,#00ff66,#a508ee);
+}
+
+.ModelPanel .Items .Links .Link.Delete:hover
+{
+    background :linear-gradient(45deg,#ff0400,#a508ee);
+}
+
+.ModelPanel .Items button
+{
+    width: 100px;
+    height: 40px;
+    border: 2px solid #c800ff;
+    border-radius: 10px;
+    outline: none;
+    background-color: #c800ff25;
+    color: #f6c1ffdb;
+    font-size: large;
+    font-weight: 600;
+    font-family: 'Courier New', Courier, monospace;
+    cursor: pointer;
+}
+
+.ModelPanel .Items .Close
+{
+  position: relative;
+  width:40px;
+  height: 40px;
+  top: -40px;
+  right: -180px;
+  border: 2px solid #c800ff;
+  border-radius: 50%;
+}
+
+.ModelPanel .Items button:hover
+{
+  background-color: #c800ffeb;
 }
