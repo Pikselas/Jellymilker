@@ -322,3 +322,11 @@ body
 {
   background-color: #c800ffeb;
 }
+
+.ModelPanel .ProfileImageSection .ProfileImage.Add
+{
+  margin-top: 153px;
+  margin-left: 72px;
+  width: max-content;
+  height: max-content;
+}

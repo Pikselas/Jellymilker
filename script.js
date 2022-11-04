@@ -1,6 +1,24 @@
 const BaseURL = "https://api.github.com/repos/Pikselas/jellymilk/contents";
 var ActiveContents = "All-Models";
 
+async function UploadToGithub(url, content , msg = "NEW COMMMIT")
+{
+   let res =  await fetch(url,{
+        "method":"PUT",
+        "headers" : {
+                "Accept":"application/vnd.github+json",
+                "Authorization" : `Bearer ${AccessToken}`},
+        "body": JSON.stringify({
+                "message":msg,
+                "committer":{
+                    "name":Committer,
+                    "email": Email
+                },"content": btoa(content)
+            })
+    });
+    return [res.status , await res.json()];
+}
+
 async function GetFromGithub(url)
 {
     return await fetch(url , {"headers":{"Accept":"application/vnd.github.v3.raw","Authorization" : `Bearer ${AccessToken}`}});
@@ -153,36 +171,6 @@ function CreateBaseModelPanel()
     Close.onclick = ()=>{
         panel.remove();
     }
-    ProfileImageSection.appendChild(ProfileImage);
-    panel.appendChild(ProfileImageSection);
-    ItemsArea.appendChild(Close);
-    ItemsArea.appendChild(DescArea);
-    ItemsArea.appendChild(Links);
-    ItemsArea.appendChild(save);
-    panel.appendChild(ItemsArea);
-    return [panel , ProfileImage , DescArea , Links , save];
-}
-
-function CreateAddModelPanel()
-{
-    let panelElements = CreateBaseModelPanel();
-}
-
-function CreateEditModelPanel(imgurl , desc , links)
-{
-    let panelElements = CreateBaseModelPanel();
-    panelElements[1].src = imgurl;
-    panelElements[2].value = desc;
-    links.forEach((link)=>{
-        let lnk = document.createElement("div");
-        lnk.className = "Link Delete";
-        lnk.title = link;
-        lnk.innerHTML = link.replace(/^(?:https?:\/\/)?(?:www\.)?/i, "").split('/')[0]
-        panelElements[3].appendChild(lnk);
-        lnk.onclick = ()=>{
-            lnk.parentElement.removeChild(lnk);
-        }
-    });
     let newLink = document.createElement("div");
     newLink.className = "Link Add"
     newLink.innerHTML = "+";
@@ -197,11 +185,57 @@ function CreateEditModelPanel(imgurl , desc , links)
             lnk.onclick = ()=>{
                 lnk.remove();
             }
-            panelElements[3].insertBefore(lnk , newLink);
+            Links.insertBefore(lnk , newLink.nextSibling);
         }
     }
-    panelElements[3].appendChild(newLink)
-    panelElements.push(newLink);
+    Links.appendChild(newLink);
+    ProfileImageSection.appendChild(ProfileImage);
+    panel.appendChild(ProfileImageSection);
+    ItemsArea.appendChild(Close);
+    ItemsArea.appendChild(DescArea);
+    ItemsArea.appendChild(Links);
+    ItemsArea.appendChild(save);
+    panel.appendChild(ItemsArea);
+    return [panel , ProfileImage , DescArea , Links , save];
+}
+
+function CreateAddModelPanel()
+{
+    let panelElements = CreateBaseModelPanel();
+    panelElements[1].src = "./icons/add-profile.png";
+    panelElements[1].className += " Add";
+    let file = document.createElement("input");
+    file.type = "file";
+    file.accept = "image/*";
+    file.onchange = ()=>{
+        let reader = new FileReader();
+        reader.onload = ()=>{
+            panelElements[1].className = "ProfileImage";
+            panelElements[1].src = reader.result;
+        }
+        reader.readAsDataURL(file.files[0]);
+    }
+    panelElements[1].onclick = ()=>{
+        file.click();
+    }
+    return [panelElements[0] , file , panelElements[2] , panelElements[3] , panelElements[4]];
+}
+
+function CreateEditModelPanel(imgurl , desc , links)
+{
+    let panelElements = CreateBaseModelPanel();
+    panelElements[1].src = imgurl;
+    panelElements[2].value = desc;
+    links.forEach((link)=>{
+        let lnk = document.createElement("div");
+        lnk.className = "Link Delete";
+        lnk.title = link;
+        lnk.innerHTML = link.replace(/^(?:https?:\/\/)?(?:www\.)?/i, "").split('/')[0]
+        panelElements[3].appendChild(lnk);
+        lnk.onclick = ()=>{
+            lnk.remove();
+        }
+    });
     return panelElements;
 }
 
@@ -259,5 +293,37 @@ document.getElementById("AddButton").onclick = async ()=>{
     if(ActiveContents == "All-Tags")
     {
         c.appendChild(CreateAddCategoryPanel());
+    }
+    else if(ActiveContents == "All-Models")
+    {
+        let nam = prompt("Enter Name")
+        if(nam != null)
+        {
+            const panelElements = CreateAddModelPanel();
+            c.appendChild(panelElements[0]);
+            panelElements[4].onclick = ()=>{
+                let Jso = {}
+                Jso["description"] = panelElements[2].value;
+                Jso["links"] = []
+                for(let i = 1 ; i < panelElements[3].children.length; ++i)
+                {
+                Jso["links"].push(panelElements[3].children[i].title);
+                }
+                Jso["tags"] = [];
+                let reader = new FileReader()
+                reader.onload = (ev) =>{
+                    Promise.all([
+                        UploadToGithub(BaseURL + "/data/models/" + nam + ".json",JSON.stringify(Jso,null,4),"ADDED MODEL-DESC:" + nam),
+                        UploadToGithub(BaseURL + "/profile_pics/" + nam + ".png",ev.target.result , "ADDED MODEL-PIC:"+ nam)
+                    ]).then(res => {
+                        alert("ADDED MODEL " + nam)
+                        panelElements[0].remove();
+                    }).catch(er => {
+                        alert("CAN'T ADD MODEL")
+                    })  
+                }
+                reader.readAsBinaryString(panelElements[1].files[0])
+            }
+        }
     }
 }
