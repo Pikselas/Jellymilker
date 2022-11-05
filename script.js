@@ -231,6 +231,45 @@ function CreateEditModelPanel(imgurl , desc , links)
     return panelElements;
 }
 
+function CreateModelsSelector(onSelect = (selectedarr = [])=>{} , models = {"name":"pic"})
+{
+    let panel = document.createElement("div");
+    panel.className = "ModelSelector";
+    let ModelsArea = document.createElement("div");
+    ModelsArea.className = "ModelsArea";
+    Object.keys(models).forEach((name)=>{
+        let model = document.createElement("div");
+        model.className = "Model";
+        let img = document.createElement("img");
+        img.src = models[name];
+        let title = document.createElement("div");
+        title.innerHTML = name;
+        let checkBox = document.createElement("input");
+        checkBox.type = "checkbox";
+        checkBox.value = name;
+        model.appendChild(img);
+        model.appendChild(title);
+        model.appendChild(checkBox);
+        ModelsArea.appendChild(model);
+    });
+    let CloseButton = document.createElement("button");
+    CloseButton.className = "CloseButton";
+    CloseButton.innerHTML = "X";
+    CloseButton.onclick = ()=>{
+        panel.remove();
+    }
+    let Addbutton = document.createElement("button");
+    Addbutton.className = "AddButton";
+    Addbutton.innerHTML = "+";
+    Addbutton.onclick = ()=>{
+        onSelect(Array.from(ModelsArea.querySelectorAll("input[type=checkbox]:checked")).map((e)=>{return e.value}));
+    }
+    panel.appendChild(CloseButton);
+    panel.appendChild(ModelsArea);
+    panel.appendChild(Addbutton);
+    return panel
+}
+
 document.body.onload = async ()=>{
     let c = document.getElementById("Container");
     c.innerHTML = "";
@@ -327,7 +366,9 @@ document.getElementById("AddButton").onclick = async ()=>{
         let tag = ActiveContents.split("-");
         if(tag[0] =="Tag" && tag[1] != undefined)
         {
-            
+            c.appendChild(CreateModelsSelector((selectedarr)=>{
+                console.log(selectedarr);
+            },AllModelMedia));
         }
     }
 }
