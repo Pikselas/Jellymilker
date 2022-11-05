@@ -149,59 +149,6 @@ body
   color: #af00ff;
 }
 
-.CategoryAddPanel
-{
-  position: absolute;
-  width: 500px;
-  height: 400px;
-  background-color: #000000cf;
-  border-radius: 15px;
-  box-shadow: 0px 0px 5px #00c3ff;
-}
-
-.CategoryAddPanel input
-{
-  width: 300px;
-  height: 35px;
-  border-top-left-radius: 20px;
-  border-bottom-left-radius: 20px;
-  border: 2px solid #b005fe;
-  background-color: #0000;
-  color: #c2c2c2;
-  text-align: center;
-  font-weight: bold;
-  font-family: monospace;
-}
-
-.CategoryAddPanel h2
-{
-  color: #00c3ff;
-  font-family: monospace;
-  font-weight: bold;
-}
-
-.CategoryAddPanel input:focus
-{
-  outline: none;
-  box-shadow: inset 0px 0px 10px #b005fe;
-}
-
-.CategoryAddPanel .AddButton
-{
-  width: 100px;
-  height: 40px;
-  border-top-right-radius: 20px;
-  border-bottom-right-radius: 20px;
-  border: 2px solid #b005fe;
-  background-color: #b005fe;
-  position: relative;
-  top: 0px;
-  margin-left: 5px;
-  color: #f6f6f6;
-  font-weight: bold;
-  font-family: monospace;
-}
-
 .ModelPanel
 {
     position: fixed;

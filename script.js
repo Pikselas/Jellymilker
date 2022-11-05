@@ -121,36 +121,6 @@ function CreateModelCard(name , desc , tags , links , imgurl)
     return card;
 }
 
-function CreateAddCategoryPanel()
-{
-    let panel = document.createElement("div");
-    panel.className = "CategoryAddPanel";
-    let title = document.createElement("h2");
-    title.innerHTML = "Add Category";
-    let input = document.createElement("input");
-    input.placeholder = "Category Name";
-    let button = document.createElement("button");
-    button.className = "AddButton";
-    button.innerHTML = "Add";
-    button.onclick = async ()=>{
-        // let res = await GetFromGithub(`${BaseURL}/data/categories.json`);
-        // if(res.ok)
-        // {
-        //     let j = await res.json();
-        //     j["categories"].push(input.value);
-        //     let res = await fetch(`${BaseURL}/data/categories.json` , {"method":"PUT" , "headers":{"Accept":"application/vnd.github.v3.raw","Authorization" : `Bearer ${AccessToken}` , "Content-Type" : "application/json"} , "body":JSON.stringify(j)});
-        //     if(res.ok)
-        //     {
-        //         alert("Category Added");
-        //     }
-        // }
-    }
-    panel.appendChild(title);
-    panel.appendChild(input);
-    panel.appendChild(button);
-    return panel;
-}
-
 function CreateBaseModelPanel()
 {
     let panel = document.createElement("div");
@@ -343,7 +313,35 @@ document.getElementById("AddButton").onclick = async ()=>{
     let c = document.getElementById("Container");
     if(ActiveContents == "All-Tags")
     {
-        c.appendChild(CreateAddCategoryPanel());
+        let newtag = prompt("Enter tag name");
+        if(newtag != null)
+        {
+            let res = await UploadToGithub(`${BaseURL}/data/categories/${newtag}.json` , JSON.stringify({"models":[]},null,4),"ADDED NEW TAG:"+newtag);
+            if(res[0] == 201)
+            {
+                res = await GetFromGithub(`${BaseURL}/data/categories.json`)
+                if(res.ok)
+                {
+                    data = await res.json();
+                    data["categories"].push(newtag);
+                    data["categories"].sort();
+                    res = await UploadToGithub(`${BaseURL}/data/categories.json` , JSON.stringify(data,null,4),"UPDATED CATEGORIES WITH TAG:"+newtag,true);
+                    if(res[0] == 200)
+                    {
+                        alert("Added new tag");
+                        document.getElementById("TagsButton").onclick();
+                    }
+                    else
+                    {
+                        console.log(res[1]);
+                    }
+                }
+            }
+            else
+            {
+                alert("Failed to add tag");
+            }
+        }
     }
     else if(ActiveContents == "All-Models")
     {
@@ -403,6 +401,7 @@ document.getElementById("AddButton").onclick = async ()=>{
                  }
                 await UploadToGithub(BaseURL + "/data/categories/" + tag[1] + ".json",JSON.stringify({"models":NewModelsArray},null,4),"UPDATED TAG:" + tag[1],true);
                 alert("ADDED MODELS TO TAG " + tag[1]);
+                document.getElementById("TagsButton").onclick();
             },tJson));
         }
     }
