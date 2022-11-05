@@ -272,22 +272,23 @@ function CreateModelsSelector(onSelect = (selectedarr = [])=>{} , models = {"nam
 }
 
 document.body.onload = async ()=>{
-    let c = document.getElementById("Container");
-    c.innerHTML = "";
     let models = await GetAllModels();
-    models.forEach(model => GetModel(model)            
-    .then((model_details)=>
-    { 
-        AllModels[model] = model_details;
-        GetFromGithub(`${BaseURL}/profile_pics/${model}.png`).then((res)=>{
-            if(res.ok)
-            {
-                res.blob().then((blob)=>{
-                 AllModelMedia[model] = URL.createObjectURL(blob);
-                });
-            }
-        });
-    }));
+    models.forEach(model => 
+    {
+        //creates an empty entry so that the models are kept in alphabetical order
+        AllModels[model] = null;
+        GetModel(model).then((model_details)=>
+        { 
+            AllModels[model] = model_details;
+            GetFromGithub(`${BaseURL}/profile_pics/${model}.png`).then((res)=>{
+                if(res.ok)
+                {
+                    res.blob().then((blob)=>{
+                    AllModelMedia[model] = URL.createObjectURL(blob);
+                    });
+                }
+            });
+    })});
 }
 
 document.getElementById("ModelsButton").onclick = async ()=>{
