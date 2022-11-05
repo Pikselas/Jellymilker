@@ -115,6 +115,27 @@ function CreateModelCard(name , desc , tags , links , imgurl)
 
     card.onclick = ()=>{
         let panelElements = CreateEditModelPanel(img.src , desc , links);
+        panelElements[4].onclick = async ()=>{
+            let Jso = {}
+            Jso["description"] = panelElements[2].value;
+            Jso["links"] = [];
+            for(let i = 1 ; i < panelElements[3].children.length ; ++i)
+            {
+                Jso["links"].push(panelElements[3].children[i].title);
+            }
+            Jso["tags"] = tags;
+            let res = await UploadToGithub(`${BaseURL}/data/models/${name}.json` , JSON.stringify(Jso , null , 4) , "UPDATED MODEL:" + name , true);
+            if(res[0] == 200)
+            {
+                alert("Model Updated");
+                AllModels[name] = Jso;
+                document.getElementById("ModelsButton").onclick();
+            }
+            else
+            {
+                alert("Error Updating Model");
+            }
+        }
         card.parentElement.appendChild(panelElements[0]);
     }
 
