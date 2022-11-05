@@ -64,7 +64,7 @@ async function GetAllModels()
         j.forEach((item)=>{
             models.push(item.name.split(".").slice(0,-1).join("."));
         });
-        return models;
+        return models.sort((a,b)=>a.localeCompare(b));
     }
 }
 
@@ -324,7 +324,7 @@ document.getElementById("AddButton").onclick = async ()=>{
                 {
                     data = await res.json();
                     data["categories"].push(newtag);
-                    data["categories"].sort();
+                    data["categories"].sort((a,b)=>a.localeCompare(b));
                     res = await UploadToGithub(`${BaseURL}/data/categories.json` , JSON.stringify(data,null,4),"UPDATED CATEGORIES WITH TAG:"+newtag,true);
                     if(res[0] == 200)
                     {
@@ -390,13 +390,13 @@ document.getElementById("AddButton").onclick = async ()=>{
             c.appendChild(CreateModelsSelector(async (selectedarr)=>{
                 let NewModelsArray = Object.keys(TempForCurrentState);
                 NewModelsArray.push(...selectedarr);
-                NewModelsArray.sort();
+                NewModelsArray.sort((a,b)=>a.localeCompare(b));
                 for (let i = 0; i < selectedarr.length; i++) 
                 {
                     let Jso = {}
                     Jso = AllModels[selectedarr[i]];
                     Jso["tags"].push(tag[1]);
-                    Jso["tags"].sort();
+                    Jso["tags"].sort((a,b)=>a.localeCompare(b));
                     await UploadToGithub(BaseURL + "/data/models/" + selectedarr[i] + ".json",JSON.stringify(Jso,null,4),"UPDATED MODEL:" + selectedarr[i],true);
                  }
                 await UploadToGithub(BaseURL + "/data/categories/" + tag[1] + ".json",JSON.stringify({"models":NewModelsArray},null,4),"UPDATED TAG:" + tag[1],true);
