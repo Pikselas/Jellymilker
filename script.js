@@ -3,9 +3,18 @@ var ActiveContents = "All-Models";
 var AllModels = {};
 var AllModelMedia = {};
 var TempForCurrentState = null;
-async function UploadToGithub(url, content , msg = "NEW COMMMIT")
+async function UploadToGithub(url, content , msg = "NEW COMMMIT" , sha = false)
 {
-   let res =  await fetch(url,{
+   let SHA = ""
+    if(sha)
+    {
+        let res = await fetch(url , {"headers":{"Accept":"application/vnd.github+json","Authorization" : `Bearer ${AccessToken}`}});
+        if(res.ok)
+        {
+            SHA = (await res.json())["sha"];
+        }
+    }
+    let res =  await fetch(url,{
         "method":"PUT",
         "headers" : {
                 "Accept":"application/vnd.github+json",
@@ -15,7 +24,8 @@ async function UploadToGithub(url, content , msg = "NEW COMMMIT")
                 "committer":{
                     "name":Committer,
                     "email": Email
-                },"content": btoa(content)
+                },"content": btoa(content),
+                "sha": SHA
             })
     });
     return [res.status , await res.json()];
@@ -379,8 +389,20 @@ document.getElementById("AddButton").onclick = async ()=>{
                     tJson[model] = AllModelMedia[model];
                 }
             });
-            c.appendChild(CreateModelsSelector((selectedarr)=>{
-                console.log(selectedarr);
+            c.appendChild(CreateModelsSelector(async (selectedarr)=>{
+                let NewModelsArray = Object.keys(TempForCurrentState);
+                NewModelsArray.push(...selectedarr);
+                NewModelsArray.sort();
+                for (let i = 0; i < selectedarr.length; i++) 
+                {
+                    let Jso = {}
+                    Jso = AllModels[selectedarr[i]];
+                    Jso["tags"].push(tag[1]);
+                    Jso["tags"].sort();
+                    await UploadToGithub(BaseURL + "/data/models/" + selectedarr[i] + ".json",JSON.stringify(Jso,null,4),"UPDATED MODEL:" + selectedarr[i],true);
+                 }
+                await UploadToGithub(BaseURL + "/data/categories/" + tag[1] + ".json",JSON.stringify({"models":NewModelsArray},null,4),"UPDATED TAG:" + tag[1],true);
+                alert("ADDED MODELS TO TAG " + tag[1]);
             },tJson));
         }
     }
