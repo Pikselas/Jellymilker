@@ -2,6 +2,7 @@ const BaseURL = "https://api.github.com/repos/Pikselas/jellymilk/contents";
 var ActiveContents = "All-Models";
 var AllModels = {};
 var AllModelMedia = {};
+var TempForCurrentState = null;
 async function UploadToGithub(url, content , msg = "NEW COMMMIT")
 {
    let res =  await fetch(url,{
@@ -310,7 +311,11 @@ document.getElementById("TagsButton").onclick = async ()=>{
             let c = document.getElementById("Container");
             c.innerHTML = "";
             let models = await GetModels(type);
+            TempForCurrentState = {};
             models.forEach(model => {
+                //for efficient searching (using in keyword)
+                // when searching if a model belongs to this type
+                TempForCurrentState[model] = null;
                 c.appendChild(CreateModelCard(model , AllModels[model]["description"] , AllModels[model]["tags"] , AllModels[model]["links"],AllModelMedia[model])); 
             });
             ActiveContents = "Tag-" + type;
@@ -366,9 +371,16 @@ document.getElementById("AddButton").onclick = async ()=>{
         let tag = ActiveContents.split("-");
         if(tag[0] =="Tag" && tag[1] != undefined)
         {
+            let tJson = {};
+            Object.keys(AllModels).forEach((model)=>{
+                if(! (model in TempForCurrentState))
+                {
+                    tJson[model] = AllModelMedia[model];
+                }
+            });
             c.appendChild(CreateModelsSelector((selectedarr)=>{
                 console.log(selectedarr);
-            },AllModelMedia));
+            },tJson));
         }
     }
 }
