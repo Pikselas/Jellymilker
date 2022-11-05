@@ -1,6 +1,7 @@
 const BaseURL = "https://api.github.com/repos/Pikselas/jellymilk/contents";
 var ActiveContents = "All-Models";
-
+var AllModels = {};
+var AllModelMedia = {};
 async function UploadToGithub(url, content , msg = "NEW COMMMIT")
 {
    let res =  await fetch(url,{
@@ -65,7 +66,7 @@ async function GetModel(name)
     }
 }
 
-function CreateModelCard(name , desc , tags , links)
+function CreateModelCard(name , desc , tags , links , imgurl)
 {
     let card = document.createElement("div");
     card.className = "Content";
@@ -73,16 +74,7 @@ function CreateModelCard(name , desc , tags , links)
     title.innerHTML = name;
     let img = document.createElement("img");
     img.className = "profilepic";
-    GetFromGithub(`${BaseURL}/profile_pics/${name}.png`).then((res)=>{
-        if(res.ok)
-        {
-            res.blob().then((blob)=>{
-                img.src = URL.createObjectURL(blob);
-                //revoke after loading complete
-                //img.onload = () => {URL.revokeObjectURL(img.src)};
-            });
-        }
-    });
+    img.src = imgurl;
     let Tags = document.createElement("div");
     Tags.className = "Tags";
     tags.forEach((tagname)=>{
@@ -246,7 +238,15 @@ document.body.onload = async ()=>{
     models.forEach(model => GetModel(model)            
     .then((model_details)=>
     { 
-        c.appendChild(CreateModelCard(model , model_details["description"] , model_details["tags"] , model_details["links"])); 
+        AllModels[model] = model_details;
+        GetFromGithub(`${BaseURL}/profile_pics/${model}.png`).then((res)=>{
+            if(res.ok)
+            {
+                res.blob().then((blob)=>{
+                 AllModelMedia[model] = URL.createObjectURL(blob);
+                });
+            }
+        });
     }));
 }
 
@@ -254,12 +254,10 @@ document.getElementById("ModelsButton").onclick = async ()=>{
     ActiveContents = "All-Models";
     let c = document.getElementById("Container");
     c.innerHTML = "";
-    let models = await GetAllModels();
-    models.forEach(model => GetModel(model)            
-    .then((model_details)=>
-    { 
-        c.appendChild(CreateModelCard(model , model_details["description"] , model_details["tags"] , model_details["links"])); 
-    }));
+    let models = Object.keys(AllModels);
+    models.forEach(model => {
+        c.appendChild(CreateModelCard(model , AllModels[model]["description"] , AllModels[model]["tags"] , AllModels[model]["links"],AllModelMedia[model])); 
+    });
 }
 
 document.getElementById("TagsButton").onclick = async ()=>{
@@ -273,11 +271,9 @@ document.getElementById("TagsButton").onclick = async ()=>{
             let c = document.getElementById("Container");
             c.innerHTML = "";
             let models = await GetModels(type);
-            models.forEach(model => GetModel(model)            
-            .then((model_details)=>
-            { 
-                c.appendChild(CreateModelCard(model , model_details["description"] , model_details["tags"] , model_details["links"])); 
-            }));
+            models.forEach(model => {
+                c.appendChild(CreateModelCard(model , AllModels[model]["description"] , AllModels[model]["tags"] , AllModels[model]["links"],AllModelMedia[model])); 
+            });
             ActiveContents = "Tag-" + type;
         }
         card.className = "Content Tag";
@@ -324,6 +320,14 @@ document.getElementById("AddButton").onclick = async ()=>{
                 }
                 reader.readAsBinaryString(panelElements[1].files[0])
             }
+        }
+    }
+    else
+    {
+        let tag = ActiveContents.split("-");
+        if(tag[0] =="Tag" && tag[1] != undefined)
+        {
+            
         }
     }
 }
