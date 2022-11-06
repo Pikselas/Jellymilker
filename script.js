@@ -113,7 +113,8 @@ function CreateModelCard(name , desc , tags , links , imgurl)
     card.appendChild(Tags);
     card.appendChild(Links);
 
-    card.onclick = ()=>{
+    card.oncontextmenu = (ev)=>{
+        ev.preventDefault();
         let panelElements = CreateEditModelPanel(img.src , desc , links);
         panelElements[4].onclick = async ()=>{
             let Jso = {}
