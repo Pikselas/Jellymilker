@@ -392,15 +392,27 @@ document.getElementById("AddButton").onclick = async ()=>{
                 Jso["tags"] = [];
                 let reader = new FileReader()
                 reader.onload = (ev) =>{
-                    Promise.all([
-                        UploadToGithub(BaseURL + "/data/models/" + nam + ".json",JSON.stringify(Jso,null,4),"ADDED MODEL-DESC:" + nam),
-                        UploadToGithub(BaseURL + "/profile_pics/" + nam + ".png",ev.target.result , "ADDED MODEL-PIC:"+ nam)
-                    ]).then(res => {
-                        alert("ADDED MODEL " + nam)
-                        panelElements[0].remove();
-                    }).catch(er => {
-                        alert("CAN'T ADD MODEL")
-                    })  
+                        UploadToGithub(BaseURL + "/data/models/" + nam + ".json",JSON.stringify(Jso,null,4),"ADDED MODEL-DESC:" + nam).then((res)=>{
+                        if(res[0] == 201)
+                        {
+                           UploadToGithub(BaseURL + "/profile_pics/" + nam + ".png",ev.target.result , "ADDED MODEL-PIC:"+ nam).then((res)=>{
+                            if(res[0] == 201)
+                            {
+                                 alert("Added Model");
+                                 document.getElementById("ModelsButton").onclick();
+                            }
+                            else
+                            {
+                                alert("Failed to add model");
+                                 console.log(res[1]);
+                            }});
+                        }
+                        else
+                        {
+                            alert("Failed to add model");
+                            console.log(res[1]);
+                        }})
+                        
                 }
                 reader.readAsBinaryString(panelElements[1].files[0])
             }
