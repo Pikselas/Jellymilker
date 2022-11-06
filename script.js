@@ -303,6 +303,15 @@ document.getElementById("ModelsButton").onclick = async ()=>{
     });
 }
 
+document.getElementById("ShuffleButton").onclick = async ()=>{
+    ActiveContents = "Shuffle";
+    let c = document.getElementById("Container");
+    c.innerHTML = "";
+    let models = Object.keys(AllModels);
+    let model = models[Math.floor(Math.random() * models.length)];
+    c.appendChild(CreateModelCard(model , AllModels[model]["description"] , AllModels[model]["tags"] , AllModels[model]["links"],AllModelMedia[model]));
+}
+
 document.getElementById("TagsButton").onclick = async ()=>{
     ActiveContents = "All-Tags";
     let c = document.getElementById("Container");
