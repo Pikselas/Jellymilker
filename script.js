@@ -399,6 +399,13 @@ document.getElementById("AddButton").onclick = async ()=>{
                             if(res[0] == 201)
                             {
                                  alert("Added Model");
+                                 AllModelMedia[nam] = URL.createObjectURL(panelElements[1].files[0]);
+                                 AllModels[nam] = Jso;
+                                 TempModel = {}
+                                 Object.keys(AllModels).sort((a,b)=>a.localeCompare(b)).forEach((key)=>{
+                                        TempModel[key] = AllModels[key];
+                                    });
+                                 AllModels = TempModel;
                                  document.getElementById("ModelsButton").onclick();
                             }
                             else
@@ -440,11 +447,25 @@ document.getElementById("AddButton").onclick = async ()=>{
                     Jso = AllModels[selectedarr[i]];
                     Jso["tags"].push(tag[1]);
                     Jso["tags"].sort((a,b)=>a.localeCompare(b));
-                    await UploadToGithub(BaseURL + "/data/models/" + selectedarr[i] + ".json",JSON.stringify(Jso,null,4),"UPDATED MODEL:" + selectedarr[i],true);
+                    let st = await UploadToGithub(BaseURL + "/data/models/" + selectedarr[i] + ".json",JSON.stringify(Jso,null,4),"UPDATED MODEL:" + selectedarr[i],true);
+                    if(st[0] != 200)
+                    {
+                        alert("Failed to update model");
+                        console.log(st[1]);
+                        return;
+                    }
                  }
-                await UploadToGithub(BaseURL + "/data/categories/" + tag[1] + ".json",JSON.stringify({"models":NewModelsArray},null,4),"UPDATED TAG:" + tag[1],true);
+                let st = await UploadToGithub(BaseURL + "/data/categories/" + tag[1] + ".json",JSON.stringify({"models":NewModelsArray},null,4),"UPDATED TAG:" + tag[1],true);
+                if(st[0] == 200)
+                {
                 alert("ADDED MODELS TO TAG " + tag[1]);
                 document.getElementById("TagsButton").onclick();
+                }
+                else
+                {
+                    alert("Failed to update tag");
+                    console.log(st[1]);
+                }
             },tJson));
         }
     }
