@@ -3,6 +3,7 @@ var ActiveContents = "All-Models";
 var AllModels = {};
 var AllModelMedia = {};
 var TempForCurrentState = null;
+var RandomModelSet = new Set();
 async function UploadToGithub(url, content , msg = "NEW COMMMIT" , sha = false)
 {
    let SHA = ""
@@ -293,7 +294,7 @@ document.body.onload = async ()=>{
     })});
 }
 
-document.getElementById("ModelsButton").onclick = async ()=>{
+document.getElementById("ModelsButton").onclick = ()=>{
     ActiveContents = "All-Models";
     let c = document.getElementById("Container");
     c.innerHTML = "";
@@ -303,13 +304,22 @@ document.getElementById("ModelsButton").onclick = async ()=>{
     });
 }
 
-document.getElementById("ShuffleButton").onclick = async ()=>{
+document.getElementById("ShuffleButton").onclick = ()=>{
     ActiveContents = "Shuffle";
     let c = document.getElementById("Container");
     c.innerHTML = "";
     let models = Object.keys(AllModels);
     let model = models[Math.floor(Math.random() * models.length)];
+    RandomModelSet.add(model);
+    RandomModelSet.forEach((model)=>{
     c.appendChild(CreateModelCard(model , AllModels[model]["description"] , AllModels[model]["tags"] , AllModels[model]["links"],AllModelMedia[model]));
+    });
+}
+
+document.getElementById("ClearShuffleButton").onclick = ()=>{
+    let c = document.getElementById("Container");
+    c.innerHTML = "";
+    RandomModelSet.clear();
 }
 
 document.getElementById("TagsButton").onclick = async ()=>{
